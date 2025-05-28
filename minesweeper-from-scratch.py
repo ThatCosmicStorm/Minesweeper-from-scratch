@@ -3,18 +3,42 @@ import numpy as np
 
 rng = np.random.default_rng()
 
-x = np.arange(2, 83)
+def mines(level):
+    if level == 1:
+        x = y = 9
+        m = 10
+    if level == 2:
+        x = y = 16
+        m = 40
+    if level == 3:
+        x = 16
+        y = 30
+        m = 99
+    
+    zero = np.zeros((x + 2, y + 2), dtype=int)
+    grid = np.arange(2, (x * y + 2))
+    
+    while len(grid[grid==1]) != m:
+        random = rng.integers(0, x * y)
+        grid[random] = 1
 
-def place_mines(x):
-    while len(x[x==1]) != 10:
-        random = rng.integers(2, 83)
-        x[random] = 1
+    for i in range(0, x * y):
+        if grid[i] == 1:
+            continue
+        if grid[i] != 2:
+            grid[i] = 2
 
-place_mines(x)
+    grid = grid.reshape(x, y)
+    zero[1:x+1, 1:y+1] = grid
 
-x = x.reshape(9, 9)
+    return zero
 
-print(x)
+print("\nDifficulty Level: Beginner")
+print(mines(1))
+print("\nDifficulty Level: Intermediate")
+print(mines(2))
+print("\nDifficulty Level: Expert")
+print(mines(3))
 
 exit()
 
