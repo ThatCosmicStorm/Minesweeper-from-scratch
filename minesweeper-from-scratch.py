@@ -2,8 +2,12 @@ import pygame as pg
 import numpy as np
 
 rng = np.random.default_rng()
+np.set_printoptions(linewidth=np.inf)
+count = 0
+
 
 def mines(level):
+    global x, y, m
     if level == 1:
         x = y = 9
         m = 10
@@ -16,29 +20,67 @@ def mines(level):
         m = 99
     
     zero = np.zeros((x + 2, y + 2), dtype=int)
+    for i in range(0, x + 2):
+        for j in range(0, y + 2):
+            zero[i, j] = 11
     grid = np.arange(2, (x * y + 2))
     
-    while len(grid[grid==1]) != m:
+    while len(grid[grid==99]) != m:
         random = rng.integers(0, x * y)
-        grid[random] = 1
+        grid[random] = 99
 
     for i in range(0, x * y):
-        if grid[i] == 1:
+        if grid[i] == 99:
             continue
-        if grid[i] != 2:
-            grid[i] = 2
+        if grid[i] != 0:
+            grid[i] = 0
 
     grid = grid.reshape(x, y)
     zero[1:x+1, 1:y+1] = grid
 
     return zero
 
+
+def number_if(argument):
+    global count
+    if argument == 99: count+= 1
+
+
+def find_number(grid, i, j):
+    number_if(grid[i - 1, j - 1])
+    number_if(grid[i - 1, j])
+    number_if(grid[i - 1, j + 1])
+    number_if(grid[i, j - 1])
+    number_if(grid[i, j + 1])
+    number_if(grid[i + 1, j - 1])
+    number_if(grid[i + 1, j])
+    number_if(grid[i + 1, j + 1])
+
+
+def set_number(grid, i, j):
+    global count
+    if count != 0:
+        grid[i, j] = count
+    count = 0
+
+
+def numbers(grid):
+    for i in range(1, x + 1):
+        for j in range(1, y + 1):
+            if grid[i, j] == 99:
+                continue
+            find_number(grid, i, j)
+            set_number(grid, i, j)
+    return grid
+
+
 print("\nDifficulty Level: Beginner")
-print(mines(1))
+print(numbers(mines(1)))
 print("\nDifficulty Level: Intermediate")
-print(mines(2))
+print(numbers(mines(2)))
 print("\nDifficulty Level: Expert")
-print(mines(3))
+print(numbers(mines(3)))
+input()
 
 exit()
 
