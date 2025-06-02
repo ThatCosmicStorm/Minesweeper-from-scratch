@@ -1,13 +1,10 @@
 import pygame as pg
 import numpy as np
 
-rng = np.random.default_rng()
-np.set_printoptions(linewidth=np.inf)
-count = 0
-
 
 def mines(level):
     global x, y, m
+    # Change the size and number of mines according to the difficulty level.
     if level == 1:
         x = y = 9
         m = 10
@@ -18,124 +15,164 @@ def mines(level):
         x = 16
         y = 30
         m = 99
-    
-    zero = np.zeros((x + 2, y + 2), dtype=int)
-    for i in range(0, x + 2):
-        for j in range(0, y + 2):
-            zero[i, j] = 11
+
+    # Create a new grid.
     grid = np.arange(2, (x * y + 2))
-    
+
+    # Until there are 99 mines, place a mine in a random spot.
     while len(grid[grid==99]) != m:
         random = rng.integers(0, x * y)
         grid[random] = 99
 
+    # Change all non-mine spots to 0.
     for i in range(0, x * y):
-        if grid[i] == 99:
-            continue
-        if grid[i] != 0:
-            grid[i] = 0
+        if grid[i] == 99: continue
+        if grid[i] != 0: grid[i] = 0
 
     grid = grid.reshape(x, y)
-    zero[1:x+1, 1:y+1] = grid
 
-    return zero
-
-
-def number_if(argument):
-    global count
-    if argument == 99: count+= 1
-
-
-def find_number(grid, i, j):
-    number_if(grid[i - 1, j - 1])
-    number_if(grid[i - 1, j])
-    number_if(grid[i - 1, j + 1])
-    number_if(grid[i, j - 1])
-    number_if(grid[i, j + 1])
-    number_if(grid[i + 1, j - 1])
-    number_if(grid[i + 1, j])
-    number_if(grid[i + 1, j + 1])
-
-
-def set_number(grid, i, j):
-    global count
-    if count != 0:
-        grid[i, j] = count
-    count = 0
-
-
-def numbers(grid):
-    for i in range(1, x + 1):
-        for j in range(1, y + 1):
-            if grid[i, j] == 99:
-                continue
-            find_number(grid, i, j)
-            set_number(grid, i, j)
     return grid
 
 
-print("\nDifficulty Level: Beginner")
-print(numbers(mines(1)))
-print("\nDifficulty Level: Intermediate")
-print(numbers(mines(2)))
-print("\nDifficulty Level: Expert")
-print(numbers(mines(3)))
-input()
+def border(grid):
+    # Create a new grid with every spot as 11.
+    border = np.array([11 for i in range(0, (x + 2) * (y + 2))])
 
-exit()
+    border = border.reshape(x + 2, y + 2)
 
+    # Broadcast the grid with mines onto the border grid.
+    border[1:x+1, 1:y+1] = grid
 
-
+    return border
 
 
-# Don't read past this point.
-# It is a work in progress.
+class Num:
+
+    def check(argument):
+        global count
+        if argument == 99: count+= 1
+
+    # Check all surrounding squares for a mine.
+    def find(grid, i, j):
+        Num.check(grid[i - 1, j - 1])
+        Num.check(grid[i - 1, j])
+        Num.check(grid[i - 1, j + 1])
+        Num.check(grid[i, j - 1])
+        Num.check(grid[i, j + 1])
+        Num.check(grid[i + 1, j - 1])
+        Num.check(grid[i + 1, j])
+        Num.check(grid[i + 1, j + 1])
+
+    def set(grid, i, j):
+        global count
+        grid[i, j] = count
+        count = 0
+
+    # Repeat the 'find' and 'set' functions for every square.
+    def repeat(grid):
+        for i in range(1, x + 1):
+            for j in range(1, y + 1):
+                if grid[i, j] == 99: continue
+                Num.find(grid, i, j)
+                Num.set(grid, i, j)
+        return grid
 
 
-
+def game(level):
+    # Returns a ready-to-use grid w/o the border.
+    return Num.repeat(
+        border(mines(level))
+    )[1:x+1, 1:y+1]
 
 
 class Rect():
 
-    def cent(rect, cent_x, cent_y):
-        rect.centerx = cent_x
-        rect.centery = cent_y
+    def __init__(self, w, h, x, y):
+        self.rect = pg.Rect(w, h, w, h)
+        self.rect.x = x
+        self.rect.y = y
 
-#     def create(w, h, cent_x, cent_y):
-#         rect = pg.Rect(w, h, w, h)
-#         Rect.cent(rect, cent_x, cent_y)
-#         return rect
-
-#     def draw(color, w, h, cent_x, cent_y, width=None):
-#         rect = Rect.create(w, h, cent_x, cent_y)
-#         if width != None: pg.draw.rect(bg, color, rect, width)
-#         else: pg.draw.rect(bg, color, rect)
+    def draw(self, color, width=0):
+        pg.draw.rect(bg, color, self.rect, width)
 
 
-class Font():
+def font(string, size, color, bg_color, x=0, y=0):
+    font = pg.font.Font(None, size)
+    text = font.render(string, True, color, bg_color)
+    textpos = pg.Rect(text.get_rect())
+    textpos.x = x
+    textpos.y = y
+    bg.blit(text, textpos)
 
-    def font(string, size, color, cent_x=None, cent_y=None):
-        font = pg.font.Font(None, size)
-        text = font.render(string, True, color, BG_COLOR)
-        textpos = pg.Rect(text.get_rect())
-        if cent_x and cent_y != None: Rect.cent(textpos, cent_x, cent_y)
-        bg.blit(text, textpos)
+
+class Settings:
+
+    def __init__(self):
+        self = font("Settings", 18, "black", "white", 5, 5)
+
+    def options():
+        """
+        New
+        ---
+        Beginner
+        Intermediate
+        Expert
+        Custom - screen
+        ---
+        Marks (?)
+        Chording - screen
+        ---
+        Best Times
+        ---
+        Exit
+        """
+        pass
+
+    def bar():
+        Rect.draw(Rect(250, 22, 0, 0), "white")
+
+
+class Top:
+
+    def mines_left():
+        pass
+
+    def new_game():
+        pass
+
+    def time():
+        pass
 
 
 # Initialization
 pg.init()
-screen = pg.display.set_mode((500, 620))
+screen = pg.display.set_mode((250, 320))
 pg.display.set_caption("Minesweeper - From Scratch")
 pg.mouse.set_visible(True)
 
 # Background creation
 bg = pg.Surface(screen.get_size())
 bg = bg.convert()
-BG_COLOR = (40, 40, 50)
+BG_COLOR = (193, 192, 190)
 bg.fill(BG_COLOR)
 
 # Object preparation
 clock = pg.time.Clock()
+rng = np.random.default_rng()
+np.set_printoptions(linewidth=np.inf)
+count = 0
+
+# Colors
+EMPTY = "gray75"
+BORDER = "gray50"
+ONE = "blue2"
+TWO = "green4"
+THREE = "red"
+FOUR = "navyblue"
+FIVE = "darkred"
+SIX = "darkcyan"
+SEVEN = "black"
+EIGHT = "gray50"
 
 # Main loop
 running = True
@@ -145,6 +182,9 @@ while running:
     # Input handling
     for event in pg.event.get():
         if event.type == pg.QUIT: running = False
+
+    Settings.bar()
+    Settings()
 
     # Visualization
     screen.blit(bg, (0, 0))
