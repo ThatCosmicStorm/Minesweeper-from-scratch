@@ -1,5 +1,11 @@
-import pygame as pg
+import blessed
 import numpy as np
+
+rng = np.random.default_rng()
+np.set_printoptions(linewidth=np.inf)
+count = 0
+
+# Here are the map generation functions.
 
 
 def mines(level):
@@ -84,110 +90,18 @@ def game(level):
         border(mines(level))
     )[1:x+1, 1:y+1]
 
-
-class Rect():
-
-    def __init__(self, w, h, x, y):
-        self.rect = pg.Rect(w, h, w, h)
-        self.rect.x = x
-        self.rect.y = y
-
-    def draw(self, color, width=0):
-        pg.draw.rect(bg, color, self.rect, width)
-
-
-def font(string, size, color, bg_color, x=0, y=0):
-    font = pg.font.Font(None, size)
-    text = font.render(string, True, color, bg_color)
-    textpos = pg.Rect(text.get_rect())
-    textpos.x = x
-    textpos.y = y
-    bg.blit(text, textpos)
-
-
-class Settings:
-
-    def __init__(self):
-        self = font("Settings", 18, "black", "white", 5, 5)
-
-    def options():
-        """
-        New
-        ---
-        Beginner
-        Intermediate
-        Expert
-        Custom - screen
-        ---
-        Marks (?)
-        Chording - screen
-        ---
-        Best Times
-        ---
-        Exit
-        """
-        pass
-
-    def bar():
-        Rect.draw(Rect(250, 22, 0, 0), "white")
-
-
-class Top:
-
-    def mines_left():
-        pass
-
-    def new_game():
-        pass
-
-    def time():
-        pass
-
-
-# Initialization
-pg.init()
-screen = pg.display.set_mode((250, 320))
-pg.display.set_caption("Minesweeper - From Scratch")
-pg.mouse.set_visible(True)
-
-# Background creation
-bg = pg.Surface(screen.get_size())
-bg = bg.convert()
-BG_COLOR = (193, 192, 190)
-bg.fill(BG_COLOR)
-
-# Object preparation
-clock = pg.time.Clock()
-rng = np.random.default_rng()
-np.set_printoptions(linewidth=np.inf)
-count = 0
-
-# Colors
-EMPTY = "gray75"
-BORDER = "gray50"
-ONE = "blue2"
-TWO = "green4"
-THREE = "red"
-FOUR = "navyblue"
-FIVE = "darkred"
-SIX = "darkcyan"
-SEVEN = "black"
-EIGHT = "gray50"
-
-# Main loop
-running = True
-while running:
-    clock.tick(60)
-
-    # Input handling
-    for event in pg.event.get():
-        if event.type == pg.QUIT: running = False
-
-    Settings.bar()
-    Settings()
-
-    # Visualization
-    screen.blit(bg, (0, 0))
-    pg.display.flip()
-
-pg.quit()
+"""
+New
+---
+Beginner
+Intermediate
+Expert
+Custom - screen
+---
+Marks (?)
+Chording - screen
+---
+Best Times
+---
+Exit
+"""
