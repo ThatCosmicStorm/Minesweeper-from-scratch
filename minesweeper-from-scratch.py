@@ -1,9 +1,15 @@
-import blessed
+import os
 import numpy as np
+import tkinter as tk
+from PIL import Image, ImageTk
 
 rng = np.random.default_rng()
 np.set_printoptions(linewidth=np.inf)
 count = 0
+level = 1
+x = y = 9
+m = 10
+
 
 # Here are the map generation functions.
 
@@ -90,18 +96,82 @@ def game(level):
         border(mines(level))
     )[1:x+1, 1:y+1]
 
-"""
-New
----
-Beginner
-Intermediate
-Expert
-Custom - screen
----
-Marks (?)
-Chording - screen
----
-Best Times
----
-Exit
-"""
+
+def lvl(lvl):
+    global level
+    if level != lvl: level = lvl
+
+
+def image(name):
+    image = Image.open(".\\Images\\" + str(name))
+    py_image = ImageTk.PhotoImage(image)
+    label = tk.Label(root, image=py_image)
+    label.photo = py_image
+    return label
+    # You'll need to individually pack each label.
+
+
+def settings_menu():
+    global level
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
+    settings_menu = tk.Menu(menubar, tearoff=False)
+    settings_menu.add_command(
+        label="New",
+        command=print(game(level))
+    )
+    settings_menu.add_separator()
+    settings_menu.add_command(
+        label="Beginner",
+        command=lvl(1)
+    )
+    settings_menu.add_command(
+        label="Intermediate",
+        command=lvl(2)
+    )
+    settings_menu.add_command(
+        label="Expert",
+        command=lvl(3)
+    )
+    settings_menu.add_command(
+        label="Custom"
+    )
+    settings_menu.add_separator()
+    settings_menu.add_command(
+        label="Marks (?)"
+    )
+    settings_menu.add_command(
+        label="Chording"
+    )
+    settings_menu.add_separator()
+    settings_menu.add_command(
+        label="Best Times"
+    )
+    settings_menu.add_separator()
+    settings_menu.add_command(
+        label="Exit",
+        command=root.destroy
+    )
+    menubar.add_cascade(
+        label="Settings",
+        menu=settings_menu
+    )
+
+
+root = tk.Tk()
+root.title("Minesweeper - From Scratch")
+root.geometry("164x225+200+200")
+root.resizable(False, False)
+root.attributes("-topmost", 1)
+
+if os.name == "nt": root.iconbitmap(".\\Images\\logo.ico")
+else: root.iconphoto(False, tk.PhotoImage(file=".\\Images\\logo.png"))
+
+bg = image("beginner_template.jpg")
+bg.pack()
+
+print(Image.open(".\\Images\\beginner_template.jpg").size)
+
+settings_menu()
+
+root.mainloop()
