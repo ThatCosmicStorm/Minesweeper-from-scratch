@@ -9,6 +9,7 @@ count = 0
 level = 1
 x = y = 9
 m = 10
+padding = "+300+400"
 
 
 # Here are the map generation functions.
@@ -97,18 +98,43 @@ def game(level):
     )[1:x+1, 1:y+1]
 
 
-def lvl(lvl):
-    global level
-    if level != lvl: level = lvl
+# Requires manual geometry management (pack, place, etc.).
+class Img:
+
+    def sing(name):
+        image = Image.open(".\\Images\\" + str(name))
+        py_image = ImageTk.PhotoImage(image)
+        label = tk.Label(root, image=py_image)
+        return label
+
+    def mult(name):
+        image = Image.open(".\\Images\\" + str(name))
+        py_image = ImageTk.PhotoImage(image)
+        label = tk.Label(root, image=py_image)
+        label.photo = py_image
+        return label
 
 
-def image(name):
-    image = Image.open(".\\Images\\" + str(name))
-    py_image = ImageTk.PhotoImage(image)
-    label = tk.Label(root, image=py_image)
-    label.photo = py_image
-    return label
-    # You'll need to individually pack each label.
+class Lvl:
+
+    def set(lvl):
+        global level
+        if level != lvl: level = lvl
+
+    def one():
+        Lvl.set(1)
+        root.geometry("166x207")
+        Img.sing("beginner_template.jpg").place(x=0, y=0)
+
+    def two():
+        Lvl.set(2)
+        root.geometry("278x321")
+        Img.sing("intermediate_template.jpg").place(x=0, y=0)
+
+    def three():
+        Lvl.set(3)
+        root.geometry("502x321")
+        Img.sing("expert_template.jpg").place(x=0, y=0)
 
 
 def settings_menu():
@@ -117,24 +143,20 @@ def settings_menu():
     root.config(menu=menubar)
     settings_menu = tk.Menu(menubar, tearoff=False)
     settings_menu.add_command(
-        label="New",
-        command=print(game(level))
+        label="New"
     )
     settings_menu.add_separator()
     settings_menu.add_command(
         label="Beginner",
-        command=lvl(1)
+        command=Lvl.one
     )
     settings_menu.add_command(
         label="Intermediate",
-        command=lvl(2)
+        command=Lvl.two
     )
     settings_menu.add_command(
         label="Expert",
-        command=lvl(3)
-    )
-    settings_menu.add_command(
-        label="Custom"
+        command=Lvl.three
     )
     settings_menu.add_separator()
     settings_menu.add_command(
@@ -152,6 +174,7 @@ def settings_menu():
         label="Exit",
         command=root.destroy
     )
+
     menubar.add_cascade(
         label="Settings",
         menu=settings_menu
@@ -160,17 +183,14 @@ def settings_menu():
 
 root = tk.Tk()
 root.title("Minesweeper - From Scratch")
-root.geometry("164x225+200+200")
+root.geometry(f"166x228{padding}")
 root.resizable(False, False)
 root.attributes("-topmost", 1)
 
 if os.name == "nt": root.iconbitmap(".\\Images\\logo.ico")
 else: root.iconphoto(False, tk.PhotoImage(file=".\\Images\\logo.png"))
 
-bg = image("beginner_template.jpg")
-bg.pack()
-
-print(Image.open(".\\Images\\beginner_template.jpg").size)
+Img.sing("beginner_template.jpg").place(x=0, y=0)
 
 settings_menu()
 
