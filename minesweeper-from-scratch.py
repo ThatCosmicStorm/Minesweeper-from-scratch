@@ -9,7 +9,8 @@ count = 0
 level = 1
 x = y = 9
 m = 10
-padding = "+300+400"
+padding = "+1100+400"
+current_bg = "beginner_template.jpg"
 
 
 # Here are the map generation functions.
@@ -99,20 +100,59 @@ def game(level):
 
 
 # Requires manual geometry management (pack, place, etc.).
-class Img:
+def img(image):
+    # Load an image and return it as a PhotoImage object.
+    if os.name == "nt":
+        return ImageTk.PhotoImage(
+            Image.open(f".\\Images\\{image}")
+        )
+    else:
+        return ImageTk.PhotoImage(
+            Image.open(f"./Images/{image}")
+        )
 
-    def sing(name):
-        image = Image.open(".\\Images\\" + str(name))
-        py_image = ImageTk.PhotoImage(image)
-        label = tk.Label(root, image=py_image)
-        return label
 
-    def mult(name):
-        image = Image.open(".\\Images\\" + str(name))
-        py_image = ImageTk.PhotoImage(image)
-        label = tk.Label(root, image=py_image)
-        label.photo = py_image
-        return label
+class Canvas:
+
+    def __init__(self, name):
+        global current_bg
+        if name == "bg":
+            self.canvas = bg = tk.Canvas(
+                root,
+                width=166,
+                height=207,
+                highlightthickness=0
+            )
+            bg.place(x=0, y=0)
+            img_bg = img(current_bg)
+            bg.create_image(0, 0, anchor=tk.NW, image=img_bg)
+        elif name == "grid":
+            self.canvas = grid = tk.Canvas(
+                root,
+                width=(16 * x),
+                height=(16 * y),
+                bg="blue",
+                highlightthickness=0
+            )
+            grid.place(x=14, y=57)
+
+    def add(self, coords, image):
+        new_image = img(image)
+        self.canvas.create_image(
+            coords,
+            anchor=tk.NW,
+            image=new_image
+        )
+    
+    def rid(self, image):
+        self.canvas.delete(image)
+
+    def replace(self, image1, image2, x, y):
+        Canvas.rid(self, image1)
+        Canvas.add(self, x, y, img(image2))
+    
+    def resize(self, new_w, new_h):
+        self.canvas.config(width=new_w, height=new_h)
 
 
 class Lvl:
@@ -122,19 +162,25 @@ class Lvl:
         if level != lvl: level = lvl
 
     def one():
+        global current_bg
         Lvl.set(1)
         root.geometry("166x207")
-        Img.sing("beginner_template.jpg").place(x=0, y=0)
+        bg.replace(current_bg, "beginner_template.jpg", 0, 0)
+        current_bg = "beginner_template.jpg"
 
     def two():
+        global current_bg
         Lvl.set(2)
         root.geometry("278x321")
-        Img.sing("intermediate_template.jpg").place(x=0, y=0)
+        bg.replace(current_bg, "intermediate_template.jpg", 0, 0)
+        current_bg = "intermediate_template.jpg"
 
     def three():
+        global current_bg
         Lvl.set(3)
         root.geometry("502x321")
-        Img.sing("expert_template.jpg").place(x=0, y=0)
+        bg.replace(current_bg, "expert_template.jpg", 0, 0)
+        current_bg = "expert_template.jpg"
 
 
 def settings_menu():
@@ -190,8 +236,8 @@ root.attributes("-topmost", 1)
 if os.name == "nt": root.iconbitmap(".\\Images\\logo.ico")
 else: root.iconphoto(False, tk.PhotoImage(file=".\\Images\\logo.png"))
 
-Img.sing("beginner_template.jpg").place(x=0, y=0)
-
+bg = Canvas("bg")
+grid = Canvas("grid")
 settings_menu()
 
 root.mainloop()
