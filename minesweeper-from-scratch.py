@@ -112,10 +112,12 @@ class Canvas:
     def __init__(self, name):
         global current_bg
         if name == "bg":
+            screenw = root.winfo_screenwidth()
+            screenh = root.winfo_screenheight()
             self.canvas = bg = tk.Canvas(
                 root,
-                width=166,
-                height=207,
+                width=screenw,
+                height=screenh,
                 highlightthickness=0
             )
             bg.place(x=0, y=0)
@@ -124,12 +126,12 @@ class Canvas:
         elif name == "grid":
             self.canvas = grid = tk.Canvas(
                 root,
-                width=(16 * x),
-                height=(16 * y),
+                width=144,
+                height=144,
                 bg="blue",
                 highlightthickness=0
             )
-            grid.place(x=14, y=57)
+            grid.place(x=12, y=55)
 
     def add(self, coords, image):
         self.new_image = img(image)
@@ -140,11 +142,11 @@ class Canvas:
         )
 
     def rid(self, image):
-        self.canvas.delete(image)
+        self.canvas.delete(img(image))
 
     def replace(self, image1, image2, x, y):
         Canvas.rid(self, image1)
-        Canvas.add(self, x, y, img(image2))
+        Canvas.add(self, (x, y), image2)
 
     def resize(self, new_w, new_h):
         self.canvas.config(width=new_w, height=new_h)
@@ -159,23 +161,26 @@ class Lvl:
     def one():
         global current_bg
         Lvl.set(1)
-        root.geometry("166x207")
+        root.geometry("164x207")
         bg.replace(current_bg, "beginner_template.png", 0, 0)
         current_bg = "beginner_template.png"
+        grid.resize(144, 144)
 
     def two():
         global current_bg
         Lvl.set(2)
-        root.geometry("278x321")
+        root.geometry("276x319")
         bg.replace(current_bg, "intermediate_template.png", 0, 0)
         current_bg = "intermediate_template.png"
+        grid.resize(256, 256)
 
     def three():
         global current_bg
         Lvl.set(3)
-        root.geometry("502x321")
+        root.geometry("500x319")
         bg.replace(current_bg, "expert_template.png", 0, 0)
         current_bg = "expert_template.png"
+        grid.resize(480, 256)
 
 
 def settings_menu():
@@ -234,7 +239,7 @@ def main():
     global root, bg, grid, PADDING
     root = tk.Tk()
     root.title("Minesweeper - From Scratch")
-    root.geometry(f"166x228{PADDING}")
+    root.geometry(f"164x227{PADDING}")
     root.resizable(False, False)
     root.attributes("-topmost", 1)
 
