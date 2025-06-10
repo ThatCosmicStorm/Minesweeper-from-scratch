@@ -107,31 +107,22 @@ def img(image):
         return tk.PhotoImage(file=f"./Images/{image}")
 
 
+# Creates a canvas to display the background image.
 class Canvas:
 
-    def __init__(self, name):
+    def __init__(self):
         global current_bg
-        if name == "bg":
-            screenw = root.winfo_screenwidth()
-            screenh = root.winfo_screenheight()
-            self.canvas = bg = tk.Canvas(
-                root,
-                width=screenw,
-                height=screenh,
-                highlightthickness=0
-            )
-            bg.place(x=0, y=0)
-            self.img_bg = img(current_bg)
-            bg.create_image(0, 0, anchor=tk.NW, image=self.img_bg)
-        elif name == "grid":
-            self.canvas = grid = tk.Canvas(
-                root,
-                width=144,
-                height=144,
-                bg="blue",
-                highlightthickness=0
-            )
-            grid.place(x=12, y=55)
+        screenw = root.winfo_screenwidth()
+        screenh = root.winfo_screenheight()
+        self.canvas = bg = tk.Canvas(
+            root,
+            width=screenw,
+            height=screenh,
+            highlightthickness=0
+        )
+        bg.place(x=0, y=0)
+        self.img_bg = img(current_bg)
+        bg.create_image(0, 0, anchor=tk.NW, image=self.img_bg)
 
     def add(self, coords, image):
         self.new_image = img(image)
@@ -152,35 +143,73 @@ class Canvas:
         self.canvas.config(width=new_w, height=new_h)
 
 
+# Creates a grid of buttons to interact with the game.
+class Grid():
+
+    def __init__(self):
+        self.x = self.xcoord = 12
+        self.y = self.ycoord = 55
+        self.main_image = img("top_cell.png")
+
+    def button(self, x, y):
+        button = tk.Button(
+            root,
+            image=self.main_image,
+            borderwidth=0,
+            highlightthickness=0,
+        )
+        button.place(x=x, y=y)
+        return button
+
+    def kill(self):
+        # Clear all buttons from the grid.
+        for widget in root.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.destroy()
+
+    def fill(self):
+        Grid.kill(self)
+
+        # Create new buttons
+        for i in range(0, y):
+            for j in range(0, x):
+                self.x = self.xcoord + (i * 16)
+                self.y = self.ycoord + (j * 16)
+
+                Grid.button(self, self.x, self.y)
+
+
 class Lvl:
 
-    def set(lvl):
-        global level
-        if level != lvl: level = lvl
+    def change(lvl, geometry, bg_image):
+        global level, current_bg
+        level = lvl
+        game(level)
+        root.geometry(geometry)
+        bg.replace(current_bg, bg_image, 0, 0)
+        current_bg = bg_image
+        grid.fill()
 
     def one():
-        global current_bg
-        Lvl.set(1)
-        root.geometry("164x207")
-        bg.replace(current_bg, "beginner_template.png", 0, 0)
-        current_bg = "beginner_template.png"
-        grid.resize(144, 144)
+        Lvl.change(
+            1,
+            "164x207",
+            "beginner_template.png"
+        )
 
     def two():
-        global current_bg
-        Lvl.set(2)
-        root.geometry("276x319")
-        bg.replace(current_bg, "intermediate_template.png", 0, 0)
-        current_bg = "intermediate_template.png"
-        grid.resize(256, 256)
+        Lvl.change(
+            2,
+            "276x319",
+            "intermediate_template.png"
+        )
 
     def three():
-        global current_bg
-        Lvl.set(3)
-        root.geometry("500x319")
-        bg.replace(current_bg, "expert_template.png", 0, 0)
-        current_bg = "expert_template.png"
-        grid.resize(480, 256)
+        Lvl.change(
+            3,
+            "500x319",
+            "expert_template.png"
+        )
 
 
 def settings_menu():
@@ -245,8 +274,9 @@ def main():
 
     set_icon()
 
-    bg = Canvas("bg")
-    grid = Canvas("grid")
+    bg = Canvas()
+    grid = Grid()
+    grid.fill()
     settings_menu()
 
     root.mainloop()
