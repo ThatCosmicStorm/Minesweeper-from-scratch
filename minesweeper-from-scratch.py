@@ -10,6 +10,8 @@ x = y = 9
 m = 10
 PADDING = "+1100+400"
 current_bg = "beginner_template.png"
+game_lost = False
+game_won = False
 
 
 # Here are the map generation functions.
@@ -126,21 +128,21 @@ class Canvas:
 
     def add(self, coords, image):
         self.new_image = img(image)
-        self.canvas.create_image(
+        bg.create_image(
             coords,
             anchor=tk.NW,
             image=self.new_image
         )
 
     def rid(self, image):
-        self.canvas.delete(img(image))
+        bg.delete(img(image))
 
     def replace(self, image1, image2, x, y):
         Canvas.rid(self, image1)
         Canvas.add(self, (x, y), image2)
 
     def resize(self, new_w, new_h):
-        self.canvas.config(width=new_w, height=new_h)
+        bg.config(width=new_w, height=new_h)
 
 
 # Creates a grid of buttons to interact with the game.
@@ -177,6 +179,36 @@ class Grid():
                 self.y = self.ycoord + (j * 16)
 
                 Grid.button(self, self.x, self.y)
+
+
+class Smiley:
+    def __init__(self):
+        self.sm_face = img("smiley_face.png")
+        self.cl_face = img("click_face.png")
+        self.co_face = img("cool_face.png")
+        self.de_face = img("dead_face.png")
+
+    def function(self):
+        # Change the smiley face to the clicked one.
+        game(level)
+        self.smiley.config(image=self.sm_face)
+
+    def place(self):
+        self.smiley = tk.Button(
+            root,
+            image=self.sm_face,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.function
+        )
+        self.smiley.place(x=74, y=18)
+
+    def update(self):
+        # Update the smiley face to the default one.
+        if game_lost:
+            self.smiley.config(image=self.de_face)
+        elif game_won:
+            self.smiley.config(image=self.co_face)
 
 
 class Lvl:
@@ -277,6 +309,8 @@ def main():
     bg = Canvas()
     grid = Grid()
     grid.fill()
+    smile = Smiley()
+    smile.place()
     settings_menu()
 
     root.mainloop()
